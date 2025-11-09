@@ -1,11 +1,13 @@
 # workflow name
 name: kk-admin
 
-# master branch on push, auto run
+# master/main branch on push, auto run
 on:
   workflow_dispatch:
   push:
-    branches: master
+    branches:
+      - master
+      - main
 
 jobs:
   build:
@@ -16,21 +18,23 @@ jobs:
     steps:
       # check it to your workflow can access it
       # from: https://github.com/actions/checkout
-      - name: 1. 检查master分支
-        uses: actions/checkout@master
+      - name: 1. 检查分支
+        uses: actions/checkout@v4
 
       # from: https://github.com/actions/setup-node
       - name: 2. 设置Node.js
-        uses: actions/setup-node@master
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
 
       - name: 3. 缓存
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         id: cache-dependencies
         with:
           path: node_modules
           key: ${{runner.OS}}-${{hashFiles('**/yarn.lock')}}
+          restore-keys: |
+            ${{runner.OS}}-
 
       - name: 4. 安装插件
         if: steps.cache-dependencies.outputs.cache-hit != 'true'
