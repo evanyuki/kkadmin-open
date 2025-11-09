@@ -1,5 +1,6 @@
 import { BasicColumn } from '/@/components/Table';
 import { FormSchema } from '/@/components/Table';
+import { TableImg } from '/@/components/Table';
 import { h } from 'vue';
 import { Switch, Tag } from 'ant-design-vue';
 import { Time } from '/@/components/Time';
@@ -45,34 +46,52 @@ export const columns: BasicColumn[] = [
       }
     },
   },
+  {
+    title: '图片',
+    dataIndex: 'images',
+    width: 150,
+    customRender: ({ record }) => {
+      const images = (record as any).images || [];
+      if (images.length > 0) {
+        return h(TableImg, {
+          imgList: images,
+          size: 50,
+          simpleShow: true,
+          showBadge: true,
+        });
+      }
+      return '';
+    },
+  },
 
   {
     title: '展示评论',
     dataIndex: 'showComment',
     width: 100,
     customRender: ({ record }) => {
-      if (!Reflect.has(record as unknown as any, 'pendingShowComment')) {
-        record.pendingShowComment = false;
+      const recordData = record as any;
+      if (!Reflect.has(recordData, 'pendingShowComment')) {
+        recordData.pendingShowComment = false;
       }
       return h(Switch, {
-        checked: record.showComment === '1',
+        checked: recordData.showComment === '1',
         checkedChildren: '展示',
         unCheckedChildren: '隐藏',
-        loading: record.pendingShowComment,
+        loading: recordData.pendingShowComment,
         onChange(checked: boolean) {
-          record.pendingShowComment = true;
+          recordData.pendingShowComment = true;
           const newStatus = checked ? '1' : '0';
           const { createMessage } = useMessage();
-          updateIspeakStatus({ _id: record._id, showComment: newStatus })
+          updateIspeakStatus({ _id: recordData._id, showComment: newStatus })
             .then(() => {
-              record.showComment = newStatus;
+              recordData.showComment = newStatus;
               createMessage.success(`修改成功`);
             })
             .catch(() => {
               createMessage.error('修改失败');
             })
             .finally(() => {
-              record.pendingShowComment = false;
+              recordData.pendingShowComment = false;
             });
         },
       });
